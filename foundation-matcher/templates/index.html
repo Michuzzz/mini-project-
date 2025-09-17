@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foundation Matcher</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Your Perfect Foundation Match </h1>
+  </header>
+
+  <main>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <!-- Upload Form -->
+    <section class="upload-section">
+      <form action="/" method="POST" enctype="multipart/form-data">
+        <label for="imageUpload" class="upload-label">Upload Your Image</label>
+        <input type="file" name="file" id="imageUpload" accept="image/*" required>
+        <button type="submit">Find My Match</button>
+      </form>
+    </section>
+
+    {% if recommendations %}
+      <!-- Recommended Shades -->
+      <section class="results">
+        <h2>Top 3 Foundation Matches</h2>
+        <div class="shade-list">
+          {% for shade in recommendations %}
+            <div class="shade-card">
+              <h3>{{ shade.brand }} - {{ shade.name }}</h3>
+              <p>Product: {{ shade.product }}</p>
+              <p>Available in India: {{ shade.in_india }}</p>
+
+              <!-- Hover toggle images -->
+              <div class="preview-container hover-toggle">
+                <img class="half-img" src="{{ url_for('static', filename='uploads/half_' ~ loop.index0 ~ '_' ~ shade.name.replace(' ','_') ~ '.jpg') }}" alt="Half">
+                <img class="full-img" src="{{ url_for('static', filename='uploads/full_' ~ loop.index0 ~ '_' ~ shade.name.replace(' ','_') ~ '.jpg') }}" alt="Full">
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </main>
+
+  <footer>
+    <p>© 2025 Foundation Matcher. Made with 💖 Michelle</p>
+  </footer>
+</body>
+</html>
