@@ -1,62 +1,103 @@
-import gradio as gr
-import pandas as pd
+import os
+import cv2
 import numpy as np
-from sklearn.cluster import KMeans
-from PIL import Image
-import io
+import pandas as pd
+from flask import Flask, render_template, request
+from werkzeug.utils import secure_filename
+import mediapipe as mp
 
-# Load foundation dataset
-df = pd.read_csv("foundation_dataset.csv.csv")
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# Function to get dominant skin tone color from image
-def get_dominant_color(image):
-    image = image.convert("RGB")
-    img_array = np.array(image)
-    img_array = img_array.reshape((-1, 3))
+# Load dataset
+df = pd.read_csv("foundation_dataset.csv")
+df[['R', 'G', 'B']] = df[['R', 'G', 'B']].astype(int)
 
-    kmeans = KMeans(n_clusters=1, random_state=42).fit(img_array)
-    dominant_color = kmeans.cluster_centers_[0]
-    return dominant_color
+# Mediapipe FaceMesh
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)
 
-# Function to recommend foundation shades
-def recommend_foundations(image):
-    if image is None:
-        return "Please upload a valid image.", None
+# Detect skin tone
+def get_skin_tone(image_path):
+    image = cv2.imread(image_path)
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(image_rgb)
+    if not results.multi_face_landmarks:
+        return None, None
+    h, w, _ = image.shape
+    skin_pixels = []
+    for lm in results.multi_face_landmarks[0].landmark[234:454]:
+        x, y = int(lm.x * w), int(lm.y * h)
+        if 0 <= x < w and 0 <= y < h:
+            skin_pixels.append(image_rgb[y, x])
+    if not skin_pixels:
+        return None, None
+    avg_color = np.mean(skin_pixels, axis=0).astype(int)
+    return image, avg_color
 
-    # Extract dominant color from uploaded face image
-    dominant_color = get_dominant_color(image)
-
-    # Compare with dataset RGB values
-    df["distance"] = np.sqrt(
-        (df["R"] - dominant_color[0])**2 +
-        (df["G"] - dominant_color[1])**2 +
-        (df["B"] - dominant_color[2])**2
+# Recommend foundations
+def recommend_foundation(avg_color):
+    df['distance'] = np.sqrt(
+        (df['R']-avg_color[0])**2 +
+        (df['G']-avg_color[1])**2 +
+        (df['B']-avg_color[2])**2
     )
+    recommendations = df.sort_values(by="distance").head(3)
+    return recommendations[['brand', 'product', 'name', 'in_india', 'R', 'G', 'B']]
 
-    # Get top 3 matches
-    top_matches = df.sort_values("distance").head(3)
+# Apply foundation
+def apply_foundation(image, foundation_rgb, mode="half"):
+    overlay = image.copy()
+    foundation_bgr = (foundation_rgb[2], foundation_rgb[1], foundation_rgb[0])
+    foundation_layer = np.full_like(image, foundation_bgr, dtype=np.uint8)
+    h, w, _ = image.shape
+    if mode == "half":
+        foundation_layer[:, :w//2, :] = image[:, :w//2, :]
+    blended = cv2.addWeighted(foundation_layer, 0.5, image, 0.5, 0)
+    return blended
 
-    results = []
-    color_swatches = []
+# Routes
+@app.route("/", methods=["GET", "POST"])
+def index():
+    recommendations = None
+    shades_output = None
+    error = None
 
-    for _, row in top_matches.iterrows():
-        results.append(f"**Brand:** {row['brand']}\n**Product:** {row['product']}\n**Shade:** {row['name']}")
-        color_swatches.append(row["hex"])
+    if request.method == "POST":
+        if "file" not in request.files or request.files["file"].filename == "":
+            error = "⚠️ Please upload an image!"
+            return render_template("index.html", error=error)
 
-    return "\n\n".join(results), color_swatches
+        file = request.files["file"]
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(filepath)
 
+        image, avg_color = get_skin_tone(filepath)
+        if image is None:
+            error = "⚠️ Please upload a clear photo of a single human face without heavy makeup or shadows."
+            return render_template("index.html", error=error)
 
-# Gradio UI
-with gr.Blocks() as demo:
-    gr.Markdown(" Your PerfectHue ")
-    gr.Markdown("Upload a clear face image (natural light, no heavy makeup). we will recommend the **Top 3 foundation shades** closest to your skin tone.")
+        recommendations_df = recommend_foundation(avg_color)
+        recommendations = recommendations_df[['brand','product','name','in_india']].to_dict(orient="records")
 
-    with gr.Row():
-        image_input = gr.Image(type="pil", label="Upload your face image")
-        output_text = gr.Textbox(label="Top 3 Recommendations", lines=10)
-        output_colors = gr.ColorPicker(label="Shade Previews", interactive=False)
+        # Generate half/full previews
+        shades_output = []
+        for i, row in recommendations_df.iterrows():
+            shade_name = row['name'].replace(" ", "_")  # safe filename
+            for mode in ["half", "full"]:
+                out_path = f"static/uploads/{mode}_{i}_{shade_name}.jpg"
+                applied = apply_foundation(image, [row['R'], row['G'], row['B']], mode)
+                cv2.imwrite(out_path, applied)
+                shades_output.append({
+                    "img": out_path,
+                    "label": f"{row['brand']} - {row['name']} ({mode})",
+                    "shade_index": i
+                })
 
-    submit_btn = gr.Button("Find My Match")
-    submit_btn.click(fn=recommend_foundations, inputs=image_input, outputs=[output_text, output_colors])
+    return render_template("index.html", recommendations=recommendations, shades_output=shades_output, error=error)
 
-demo.launch()
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
