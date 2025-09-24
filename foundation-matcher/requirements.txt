@@ -1,6 +1,7 @@
-flask==3.0.3
-pandas==2.2.2
-numpy==1.26.4
-opencv-python==4.9.0.80
-mediapipe==0.10.14
-Werkzeug==3.0.3
+Flask==2.3.3
+pandas==2.1.1
+numpy==1.26.2
+mediapipe==0.10.5
+opencv-python==4.8.1.1
+Werkzeug==2.3.8
+
