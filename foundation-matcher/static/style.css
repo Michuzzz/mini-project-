@@ -1,4 +1,6 @@
-/* General Reset */
+/* =======================
+   General Reset
+======================= */
 * {
   margin: 0;
   padding: 0;
@@ -14,6 +16,9 @@ body {
   flex-direction: column;
 }
 
+/* =======================
+   Header
+======================= */
 header {
   background: #be185d;
   color: white;
@@ -21,6 +26,9 @@ header {
   text-align: center;
 }
 
+/* =======================
+   Main
+======================= */
 main {
   flex: 1;
   padding: 2rem;
@@ -28,6 +36,9 @@ main {
   margin: 0 auto;
 }
 
+/* =======================
+   Upload Section
+======================= */
 .upload-section {
   text-align: center;
   margin-bottom: 2rem;
@@ -59,6 +70,22 @@ button:hover {
   background: #9d174d;
 }
 
+/* =======================
+   Uploaded Image
+======================= */
+.uploaded-image img {
+  border-radius: 12px;
+  border: 2px solid #e11d48;
+  margin-top: 1rem;
+  width: 250px;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* =======================
+   Results / Shades
+======================= */
 .results h2 {
   text-align: center;
   margin-bottom: 1rem;
@@ -78,6 +105,12 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shade-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 .shade-card h3 {
@@ -89,7 +122,9 @@ button:hover {
   margin-bottom: 0.3rem;
 }
 
-/* Hover toggle images */
+/* =======================
+   Hover Toggle Previews
+======================= */
 .preview-container {
   position: relative;
   width: 200px;
@@ -105,11 +140,11 @@ button:hover {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.4s ease;
   position: absolute;
   top: 0;
   left: 0;
   border-radius: 15px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .preview-container img.full-img {
@@ -118,13 +153,63 @@ button:hover {
 
 .preview-container.hover-toggle:hover img.full-img {
   opacity: 1;
+  transform: scale(1.05);
 }
 
 .preview-container.hover-toggle:hover img.half-img {
   opacity: 0;
+  transform: scale(1.05);
 }
 
-/* Footer */
+/* =======================
+   Label Overlay
+======================= */
+.preview-container .label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(190,24,93,0.85); /* matches app theme */
+  color: #fff;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.label-half {
+  opacity: 1;
+}
+
+.label-full {
+  opacity: 0;
+}
+
+.preview-container.hover-toggle:hover .label-half {
+  opacity: 0;
+}
+
+.preview-container.hover-toggle:hover .label-full {
+  opacity: 1;
+}
+
+/* =======================
+   Error Message
+======================= */
+.error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* =======================
+   Footer
+======================= */
 footer {
   background: #be185d;
   color: white;
@@ -132,3 +217,5 @@ footer {
   padding: 1rem;
   margin-top: auto;
 }
+
+
