@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <h1>Your Perfect Foundation Match </h1>
+    <h1>Your Perfect Foundation Match</h1>
   </header>
 
   <main>
@@ -25,6 +25,13 @@
       </form>
     </section>
 
+    {% if uploaded_file %}
+      <section class="uploaded-image">
+        <h2>Uploaded Image</h2>
+        <img src="{{ uploaded_file }}" alt="Uploaded">
+      </section>
+    {% endif %}
+
     {% if recommendations %}
       <!-- Recommended Shades -->
       <section class="results">
@@ -36,10 +43,16 @@
               <p>Product: {{ shade.product }}</p>
               <p>Available in India: {{ shade.in_india }}</p>
 
-              <!-- Hover toggle images -->
+              <!-- Hover toggle images with labels -->
               <div class="preview-container hover-toggle">
-                <img class="half-img" src="{{ url_for('static', filename='uploads/half_' ~ loop.index0 ~ '_' ~ shade.name.replace(' ','_') ~ '.jpg') }}" alt="Half">
-                <img class="full-img" src="{{ url_for('static', filename='uploads/full_' ~ loop.index0 ~ '_' ~ shade.name.replace(' ','_') ~ '.jpg') }}" alt="Full">
+                {% for preview in shades_output %}
+                  {% if preview.shade_index == loop.index0 %}
+                    <img class="half-img" src="{{ preview.img }}" alt="Half">
+                    <img class="full-img" src="{{ preview.img }}" alt="Full">
+                    <div class="label label-half">Half</div>
+                    <div class="label label-full">Full</div>
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
           {% endfor %}
@@ -53,3 +66,4 @@
   </footer>
 </body>
 </html>
+
