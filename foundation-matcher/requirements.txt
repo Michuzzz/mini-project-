@@ -1,5 +1,5 @@
 Flask==2.3.3
-pandas==2.1.1
+pandas>=2.2.3
 numpy==1.26.2
 mediapipe==0.10.5
 opencv-python==4.8.1.1
