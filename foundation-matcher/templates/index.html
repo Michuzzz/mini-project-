@@ -18,17 +18,36 @@
 
     <!-- Upload Form -->
     <section class="upload-section">
-      <form action="/" method="POST" enctype="multipart/form-data">
+      <form action="/" method="POST" enctype="multipart/form-data" id="uploadForm">
         <label for="imageUpload" class="upload-label">Upload Your Image</label>
         <input type="file" name="file" id="imageUpload" accept="image/*" required>
         <button type="submit">Find My Match</button>
       </form>
+      
+      <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing your image...</p>
+      </div>
     </section>
 
     {% if uploaded_file %}
       <section class="uploaded-image">
         <h2>Uploaded Image</h2>
         <img src="{{ uploaded_file }}" alt="Uploaded">
+      </section>
+    {% endif %}
+
+    {% if skin_tone %}
+      <section class="skin-analysis">
+        <h2>Your Skin Tone Analysis</h2>
+        <div class="skin-tone-info">
+          <div class="color-swatch" style="background-color: rgb({{ skin_tone[0] }}, {{ skin_tone[1] }}, {{ skin_tone[2] }})"></div>
+          <div class="tone-details">
+            <p>RGB: ({{ skin_tone[0] }}, {{ skin_tone[1] }}, {{ skin_tone[2] }})</p>
+            <p>HEX: {{ skin_tone_hex }}</p>
+            <p>Undertone: {{ undertone }}</p>
+          </div>
+        </div>
       </section>
     {% endif %}
 
@@ -44,13 +63,12 @@
               <p>Available in India: {{ shade.in_india }}</p>
 
               <!-- Hover toggle images with labels -->
-              <div class="preview-container hover-toggle">
+              <div class="preview-container">
                 {% for preview in shades_output %}
                   {% if preview.shade_index == loop.index0 %}
                     <img class="half-img" src="{{ preview.img }}" alt="Half">
                     <img class="full-img" src="{{ preview.img }}" alt="Full">
-                    <div class="label label-half">Half</div>
-                    <div class="label label-full">Full</div>
+                    <div class="toggle-button" onclick="toggleImage(this)">Toggle View</div>
                   {% endif %}
                 {% endfor %}
               </div>
@@ -64,6 +82,25 @@
   <footer>
     <p>© 2025 Foundation Matcher. Made with 💖 Michelle</p>
   </footer>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+      document.getElementById('loadingSpinner').style.display = 'flex';
+    });
+    
+    function toggleImage(button) {
+      const container = button.parentElement;
+      const halfImg = container.querySelector('.half-img');
+      const fullImg = container.querySelector('.full-img');
+      
+      if (halfImg.style.display === 'none') {
+        halfImg.style.display = 'block';
+        fullImg.style.display = 'none';
+      } else {
+        halfImg.style.display = 'none';
+        fullImg.style.display = 'block';
+      }
+    }
+  </script>
 </body>
 </html>
-
