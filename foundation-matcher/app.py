@@ -9,11 +9,13 @@ from PIL import Image
 import io
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+# Set the upload folder to an absolute path
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Load dataset
-df = pd.read_csv("foundation_dataset.csv")
+# Load dataset - use absolute path
+dataset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'foundation_dataset.csv')
+df = pd.read_csv(dataset_path)
 df[['R', 'G', 'B']] = df[['R', 'G', 'B']].astype(int)
 
 # Mediapipe FaceMesh
@@ -219,5 +221,3 @@ def index():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
-
-
