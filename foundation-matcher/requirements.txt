@@ -2,7 +2,7 @@ Flask==2.3.3
 pandas==2.2.2
 numpy==1.26.4
 mediapipe==0.10.11
-opencv-python==4.9.0.80
+opencv-python-headless==4.9.0.80
 Werkzeug==3.0.1
 Pillow==10.3.0
 gunicorn==21.2.0
