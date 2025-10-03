@@ -4,4 +4,4 @@ numpy==1.26.2
 mediapipe==0.10.14
 opencv-python==4.8.1.1
 Werkzeug==2.3.8
-
+Pillow==10.0.0
