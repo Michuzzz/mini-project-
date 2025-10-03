@@ -70,6 +70,29 @@ button:hover {
   background: #9d174d;
 }
 
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.spinner {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #e11d48;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* =======================
    Uploaded Image
 ======================= */
@@ -81,6 +104,35 @@ button:hover {
   height: auto;
   display: block;
   object-fit: cover;
+}
+
+/* =======================
+   Skin Analysis
+======================= */
+.skin-analysis {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.skin-tone-info {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.color-swatch {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-right: 1rem;
+  border: 2px solid #e11d48;
+}
+
+.tone-details p {
+  margin: 0.3rem 0;
 }
 
 /* =======================
@@ -123,7 +175,7 @@ button:hover {
 }
 
 /* =======================
-   Hover Toggle Previews
+   Preview Container
 ======================= */
 .preview-container {
   position: relative;
@@ -144,54 +196,25 @@ button:hover {
   top: 0;
   left: 0;
   border-radius: 15px;
-  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .preview-container img.full-img {
-  opacity: 0;
+  display: none;
 }
 
-.preview-container.hover-toggle:hover img.full-img {
-  opacity: 1;
-  transform: scale(1.05);
-}
-
-.preview-container.hover-toggle:hover img.half-img {
-  opacity: 0;
-  transform: scale(1.05);
-}
-
-/* =======================
-   Label Overlay
-======================= */
-.preview-container .label {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(190,24,93,0.85); /* matches app theme */
-  color: #fff;
-  font-weight: bold;
-  padding: 2px 6px;
+.toggle-button {
+  background: #e11d48;
+  color: white;
+  border: none;
+  padding: 5px 10px;
   border-radius: 5px;
-  font-size: 0.8rem;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.label-half {
-  opacity: 1;
-}
-
-.label-full {
-  opacity: 0;
-}
-
-.preview-container.hover-toggle:hover .label-half {
-  opacity: 0;
-}
-
-.preview-container.hover-toggle:hover .label-full {
-  opacity: 1;
+  cursor: pointer;
+  margin-top: 5px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
 }
 
 /* =======================
@@ -218,4 +241,30 @@ footer {
   margin-top: auto;
 }
 
-
+/* =======================
+   Mobile Responsiveness
+======================= */
+@media (max-width: 768px) {
+  .shade-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .preview-container {
+    width: 150px;
+    height: 150px;
+  }
+  
+  header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .skin-tone-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .color-swatch {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}
